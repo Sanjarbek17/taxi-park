@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:taxi_park/core/custom_theme.dart';
 import 'package:taxi_park/pages/login_page.dart';
 import 'package:taxi_park/pages/map_page.dart';
 import 'package:taxi_park/pages/users_page.dart';
@@ -14,9 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Taxi Park',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: customTheme,
       initialRoute: '/',
       routes: {
         '/': (context) => const LoginPage(),
