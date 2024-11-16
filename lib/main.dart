@@ -20,7 +20,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Taxi Park',
       theme: customTheme,
-      initialRoute: '/',
+      initialRoute: '/home',
       routes: {
         '/': (context) => const LoginPage(),
         '/home': (context) => const AppView(),
