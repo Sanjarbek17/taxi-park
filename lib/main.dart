@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:taxi_park/core/custom_theme.dart';
+import 'package:taxi_park/pages/app_view.dart';
 import 'package:taxi_park/pages/login_page.dart';
-import 'package:taxi_park/pages/map_page.dart';
-import 'package:taxi_park/pages/orders_page.dart';
-import 'package:taxi_park/pages/users_page.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -20,9 +23,10 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const LoginPage(),
-        '/users': (context) => const UsersPage(),
-        '/map': (context) => const MapPage(),
-        '/orders': (context) => const OrdersPage(),
+        '/home': (context) => const AppView(),
+        // '/users': (context) => const DriversPage(),
+        // '/map': (context) => const MapPage(),
+        // '/orders': (context) => const OrdersPage(),
       },
     );
   }
