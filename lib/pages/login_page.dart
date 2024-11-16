@@ -36,7 +36,7 @@ class LoginPage extends StatelessWidget {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/users');
+                    Navigator.pushNamed(context, '/orders');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: CustomColors.primaryColor,
