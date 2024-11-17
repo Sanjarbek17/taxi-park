@@ -14,4 +14,16 @@ class CarModel {
     required this.isWorking,
     required this.year,
   });
+
+  factory CarModel.fromJson(Map<String, dynamic> data) {
+    final json = data['attributes'];
+    return CarModel(
+      id: data['id'],
+      brand: json['brand'],
+      color: json['color'],
+      plate: json['plate'],
+      isWorking: json['isWorking'],
+      year: json['year'],
+    );
+  }
 }
