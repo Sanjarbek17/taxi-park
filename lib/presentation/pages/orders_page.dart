@@ -2,7 +2,7 @@ import 'package:awesome_extensions/awesome_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:taxi_park/data/models/order_model.dart';
-import 'package:taxi_park/presentation/blocs/orders/orders_bloc.dart';
+import 'package:taxi_park/presentation/blocs/orders/data_bloc.dart';
 
 class OrdersPage extends StatelessWidget {
   const OrdersPage({super.key});
