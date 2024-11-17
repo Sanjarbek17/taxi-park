@@ -1,13 +1,10 @@
-import 'package:taxi_park/data/models/address_model.dart';
-
 class OrderModel {
   int id;
   DateTime created;
   DateTime finished;
-  List<AddressModel> addresses;
+  List<String> addresses;
   String status;
   int cash;
-  String crewGroup;
   // TODO: this must driver model
   int driverId;
   // TODO: this must car model
@@ -22,6 +19,5 @@ class OrderModel {
     required this.cash,
     required this.driverId,
     required this.carId,
-    required this.crewGroup,
   });
 }

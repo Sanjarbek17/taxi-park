@@ -1,12 +1,11 @@
-
 import 'package:latlong2/latlong.dart';
 
 class AddressModel {
-  String address;
-  LatLng coordinates;
+  final DateTime dateCoordinates;
+  final LatLng coordinates;
 
   AddressModel({
-    required this.address,
+    required this.dateCoordinates,
     required this.coordinates,
   });
 }

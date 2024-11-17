@@ -16,7 +16,9 @@ class DriversPage extends StatelessWidget {
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: DataTable(
+            columnSpacing: 10,
             columns: const [
+              DataColumn(label: Text('Online')),
               DataColumn(label: Text('Driver Name')),
               DataColumn(label: Text('Car')),
               DataColumn(label: Text('Balance')),
@@ -26,31 +28,23 @@ class DriversPage extends StatelessWidget {
             rows: [
               DataRow(
                 cells: [
-                  DataCell(
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('John Doe', style: context.textTheme.bodyLarge),
-                        Text('123-456-7890', style: context.textTheme.bodySmall),
-                      ],
-                    ),
+                  const DataCell(Icon(Icons.circle, color: Colors.red)),
+                  customDataCell(
+                    context,
+                    title: 'John Doe',
+                    subtitle: '123-456-7890',
                   ),
                   DataCell(Image.asset(Assets.images.cobalt.path, width: 100)),
-                  const DataCell(Text('\$100.00')),
+                  const DataCell(Text('\$10 000.00')),
                 ],
               ),
               DataRow(
                 cells: [
-                  DataCell(
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('John Doe', style: context.textTheme.bodyLarge),
-                        Text('123-456-7890', style: context.textTheme.bodySmall),
-                      ],
-                    ),
+                  const DataCell(Icon(Icons.circle, color: Colors.green)),
+                  customDataCell(
+                    context,
+                    title: 'John Doe',
+                    subtitle: '998 99 453 23 12',
                   ),
                   DataCell(Image.asset(Assets.images.nexia2.path, width: 100)),
                   const DataCell(Text('\$200.00')),
@@ -58,15 +52,11 @@ class DriversPage extends StatelessWidget {
               ),
               DataRow(
                 cells: [
-                  DataCell(
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('John Doe', style: context.textTheme.bodyLarge),
-                        Text('123-456-7890', style: context.textTheme.bodySmall),
-                      ],
-                    ),
+                  const DataCell(Icon(Icons.circle, color: Colors.green)),
+                  customDataCell(
+                    context,
+                    title: 'John Doe',
+                    subtitle: '123-456-7890',
                   ),
                   DataCell(Image.asset(Assets.images.nexia3.path, width: 100)),
                   const DataCell(Text('\$300.00')),
@@ -75,6 +65,32 @@ class DriversPage extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  DataCell customDataCell(BuildContext context, {String? title, String? subtitle}) {
+    return DataCell(
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: context.width * 0.26,
+            child: Text(
+              title ?? '',
+              style: context.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(height: 5),
+          SizedBox(
+            width: context.width * 0.26,
+            child: Text(
+              subtitle ?? '',
+              style: context.textTheme.bodySmall,
+            ),
+          ),
+        ],
       ),
     );
   }

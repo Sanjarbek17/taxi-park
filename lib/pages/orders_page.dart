@@ -16,43 +16,118 @@ class OrdersPage extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           child: DataTable(
             columns: const [
-              DataColumn(label: Text('Order\nNumber')),
-              DataColumn(label: Text('Driver')),
+              DataColumn(label: Text('Driver & Phone')),
               DataColumn(label: Text('Address')),
-              DataColumn(label: Text('Date')),
-              DataColumn(label: Text('Status')),
+              DataColumn(label: Text('Cost')),
             ],
-            rows: const [
+            columnSpacing: 0,
+            dataRowMinHeight: 10,
+            dataRowMaxHeight: 100,
+            rows: [
               DataRow(
                 cells: [
-                  DataCell(Text('1')),
-                  DataCell(Text('John Doe')),
-                  DataCell(Text('123 Main St')),
-                  DataCell(Text('2021-09-01')),
-                  DataCell(Text('Completed')),
+                  customDataCell(
+                    context,
+                    title: 'Jabborov Jasur',
+                    subtitle: '99 999 99 99',
+                  ),
+                  addressDataCell(
+                    context,
+                    title: '30ПедКолледж /Булунгур/',
+                    subtitle: '30-8Богча /Булунгур/ * (определен автоматически)',
+                  ),
+                  const DataCell(Text('RUB 50 000')),
                 ],
               ),
               DataRow(
                 cells: [
-                  DataCell(Text('2')),
-                  DataCell(Text('Jane Doe')),
-                  DataCell(Text('456 Elm St')),
-                  DataCell(Text('2021-09-02')),
-                  DataCell(Text('Completed')),
+                  customDataCell(
+                    context,
+                    title: 'Jabborov Jasur',
+                    subtitle: '99 999 99 99',
+                  ),
+                  addressDataCell(
+                    context,
+                    title: '30ПедКолледж /Булунгур/',
+                    subtitle: '30-8Богча /Булунгур/ * (определен автоматически)',
+                  ),
+                  const DataCell(Text('RUB 5 000')),
                 ],
               ),
               DataRow(
                 cells: [
-                  DataCell(Text('3')),
-                  DataCell(Text('John Doe')),
-                  DataCell(Text('789 Oak St')),
-                  DataCell(Text('2021-09-03')),
-                  DataCell(Text('Completed')),
+                  customDataCell(
+                    context,
+                    title: 'Jabborov Jasur',
+                    subtitle: '99 999 99 99',
+                  ),
+                  addressDataCell(
+                    context,
+                    title: '30ПедКолледж /Булунгур/',
+                    subtitle: '30-8Богча /Булунгур/ * (определен автоматически)',
+                  ),
+                  const DataCell(Text('RUB 50 000')),
                 ],
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  DataCell addressDataCell(BuildContext context, {String? title, String? subtitle}) {
+    return DataCell(
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: context.width * 0.46,
+            child: Text(
+              title ?? '',
+              style: context.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(height: 5),
+          SizedBox(
+            width: context.width * 0.46,
+            child: Text(
+              subtitle ?? '',
+              style: context.textTheme.bodySmall,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  DataCell customDataCell(BuildContext context, {String? title, String? subtitle}) {
+    return DataCell(
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: context.width * 0.26,
+            child: Text(
+              title ?? '',
+              style: context.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(height: 5),
+          SizedBox(
+            width: context.width * 0.26,
+            child: Text(
+              subtitle ?? '',
+              style: context.textTheme.bodySmall,
+            ),
+          ),
+        ],
       ),
     );
   }
