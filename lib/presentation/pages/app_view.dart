@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:taxi_park/pages/drivers_page.dart';
-import 'package:taxi_park/pages/map_page.dart';
-import 'package:taxi_park/pages/orders_page.dart';
+import 'package:taxi_park/presentation/pages/drivers_page.dart';
+import 'package:taxi_park/presentation/pages/map_page.dart';
+import 'package:taxi_park/presentation/pages/orders_page.dart';
 
 class AppView extends StatefulWidget {
   const AppView({super.key});

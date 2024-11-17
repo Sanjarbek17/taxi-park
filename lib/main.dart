@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taxi_park/core/custom_theme.dart';
-import 'package:taxi_park/pages/app_view.dart';
-import 'package:taxi_park/pages/login_page.dart';
+import 'package:taxi_park/presentation/pages/app_view.dart';
+import 'package:taxi_park/presentation/pages/login_page.dart';
 
 void main() {
   runApp(const MyApp());
