@@ -1,3 +1,4 @@
+import 'package:taxi_park/core/auth_status.dart';
 import 'package:taxi_park/data/models/driver_model.dart';
 import 'package:taxi_park/data/models/order_model.dart';
 import 'package:taxi_park/data/services/remote_service.dart';
@@ -7,15 +8,14 @@ class DataRepo {
 
   DataRepo({required RemoteService remoteService}) : _remoteService = remoteService;
 
-  bool get isLoggedIn {
-    return _remoteService.isLoggedIn;
-  }
 
   Future<void> login(String username, String password) async {
     await _remoteService.login(username, password);
   }
 
   // connect to streams
+  Stream<AuthStatus> get authStream => _remoteService.authStream;
+
   Stream<List<OrderModel>> get orderStream => _remoteService.orderStream;
   Stream<List<DriverModel>> get driverStream => _remoteService.driverStream;
   Stream<List<DriverModel>> get addressStream => _remoteService.addressStream;

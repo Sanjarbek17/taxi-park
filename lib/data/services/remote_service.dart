@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:taxi_park/core/auth_status.dart';
 import 'package:taxi_park/data/models/driver_model.dart';
 import 'package:taxi_park/data/models/order_model.dart';
 
@@ -16,39 +19,54 @@ class RemoteService {
   })  : _sharedPreferences = sharedPreferences,
         _dio = dio;
 
+  late final _authStreamController = StreamController<AuthStatus>();
+
   late final _orderStreamController = BehaviorSubject<List<OrderModel>>.seeded([]);
   late final _driverStreamController = BehaviorSubject<List<DriverModel>>.seeded([]);
   late final _addressStreamController = BehaviorSubject<List<DriverModel>>.seeded([]);
+
+  Stream<AuthStatus> get authStream async* {
+    final token = _sharedPreferences.getString(RemoteService.token);
+    if (token != null) {
+      yield AuthStatus.authenticated;
+    } else {
+      yield AuthStatus.unauthenticated;
+    }
+    yield* _authStreamController.stream;
+  }
 
   Stream<List<OrderModel>> get orderStream => _orderStreamController.asBroadcastStream();
   Stream<List<DriverModel>> get driverStream => _driverStreamController.asBroadcastStream();
   Stream<List<DriverModel>> get addressStream => _addressStreamController.asBroadcastStream();
 
-  bool get isLoggedIn {
-    return _sharedPreferences.getString(token) != null;
-  }
-
   Future<void> login(String username, String password) async {
-    final response = await _dio.post(
-      '/login',
-      options: Options(
-        headers: {
-          'Content-Type': 'application/json',
-          'x-brigadier-site': 'taxi-kp.tm.taxi',
+    try {
+      final response = await _dio.post(
+        '/login',
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'x-brigadier-site': 'taxi-kp.tm.taxi',
+          },
+        ),
+        queryParameters: {
+          'login': username,
+          'password': password,
         },
-      ),
-      queryParameters: {
-        'login': username,
-        'password': password,
-      },
-    );
-    final authToken = response.data['auth_token'];
-    await _sharedPreferences.setString(token, authToken);
+      );
+      final authToken = response.data['auth_token'];
+      await _sharedPreferences.setString(token, authToken);
+      _authStreamController.add(AuthStatus.authenticated);
+    } catch (_) {
+      _authStreamController.add(AuthStatus.unauthenticated);
+      throw Exception('Invalid credentials');
+    }
   }
 
   Future<void> logout() async {
     await _dio.post('/logout');
     await _sharedPreferences.remove(token);
+    _authStreamController.add(AuthStatus.unauthenticated);
   }
 
   Future<void> getOrders({int pageLimit = 10}) async {

@@ -18,6 +18,8 @@ class DataBloc extends Bloc<DataBlocEvent, DataBlocState> {
 
   final DataRepo _ordersRepository;
 
+
+
   void _onOrdersSubscriptionRequested(
     OrdersSubscriptionRequested event,
     Emitter<DataBlocState> emit,

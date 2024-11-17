@@ -2,7 +2,7 @@ import 'package:awesome_extensions/awesome_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:taxi_park/data/models/order_model.dart';
-import 'package:taxi_park/presentation/blocs/orders/data_bloc.dart';
+import 'package:taxi_park/presentation/blocs/data_bloc/data_bloc.dart';
 
 class OrdersPage extends StatelessWidget {
   const OrdersPage({super.key});
@@ -14,10 +14,10 @@ class OrdersPage extends StatelessWidget {
         leading: nil,
         title: const Text('Orders'),
       ),
-      body: BlocListener<OrdersBloc, OrdersState>(
+      body: BlocListener<DataBloc, DataBlocState>(
         listenWhen: (previous, current) => previous.status != current.status,
         listener: (context, state) {
-          if (state.status == OrdersStatus.error) {
+          if (state.status == DataStatus.error) {
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
               ..showSnackBar(
@@ -27,14 +27,16 @@ class OrdersPage extends StatelessWidget {
               );
           }
         },
-        child: BlocBuilder<OrdersBloc, OrdersState>(
+        child: BlocBuilder<DataBloc, DataBlocState>(
           builder: (context, state) {
+            print('OrdersPage: ${state.orders.length}');
+            print('Orders status: ${state.status}');
             if (state.orders.isEmpty) {
-              if (state.status == OrdersStatus.loading) {
+              if (state.status == DataStatus.loading) {
                 return const Center(
                   child: CircularProgressIndicator(),
                 );
-              } else if (state.status == OrdersStatus.loaded) {
+              } else if (state.status == DataStatus.loaded) {
                 return nil;
               } else {
                 return const Center(

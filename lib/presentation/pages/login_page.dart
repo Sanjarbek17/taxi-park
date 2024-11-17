@@ -19,15 +19,6 @@ class _LoginPageState extends State<LoginPage> {
   bool isObscure = true;
 
   @override
-  void initState() {
-    super.initState();
-    // if user is already logged in, navigate to home page
-    if (locator<DataRepo>().isLoggedIn) {
-      Navigator.pushNamed(context, '/home');
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(

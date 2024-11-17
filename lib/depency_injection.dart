@@ -3,7 +3,8 @@ import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:taxi_park/data/repository/data_repo.dart';
 import 'package:taxi_park/data/services/remote_service.dart';
-import 'package:taxi_park/presentation/blocs/orders/data_bloc.dart';
+import 'package:taxi_park/presentation/blocs/auth_bloc/auth_bloc.dart';
+import 'package:taxi_park/presentation/blocs/data_bloc/data_bloc.dart';
 
 final GetIt locator = GetIt.instance;
 
@@ -34,6 +35,9 @@ Future<void> setupLocator() async {
 
   // Registering the Bloc
   locator.registerLazySingleton(
-    () => OrdersBloc(ordersRepository: locator<DataRepo>()),
+    () => DataBloc(ordersRepository: locator<DataRepo>()),
+  );
+  locator.registerLazySingleton(
+    () => AuthenticationBloc(authenticationRepository: locator<DataRepo>()),
   );
 }
