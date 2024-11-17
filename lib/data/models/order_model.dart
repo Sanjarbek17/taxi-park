@@ -23,21 +23,19 @@ class OrderModel {
     int driverId = data['relationships']['driver']['data']['id'];
     final json = data['attributes'];
     return OrderModel(
-      id: json['id'],
+      id: data['id'],
       created: DateTime.parse(json['created']),
       finished: DateTime.parse(json['finished']),
       addresses: List<String>.from(
-        (json['addresses'] as List)
-            .map(
-              (address) => address['address'],
-            ),
+        (json['addresses'] as List).map(
+          (address) => address['address'],
+        ),
       ),
-      status: json['status'],
-      cash: json['cash'],
+      status: json['state']['type'],
+      cash: json['cost']['cash'],
       driverId: DriverModel.fromJson(
         included.firstWhere(
           (element) => element['type'] == 'drivers' && element['id'] == driverId,
-        
         ),
         included,
       ),

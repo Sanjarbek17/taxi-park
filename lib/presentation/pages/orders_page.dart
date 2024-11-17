@@ -1,5 +1,8 @@
 import 'package:awesome_extensions/awesome_extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:taxi_park/data/models/order_model.dart';
+import 'package:taxi_park/presentation/blocs/orders/orders_bloc.dart';
 
 class OrdersPage extends StatelessWidget {
   const OrdersPage({super.key});
@@ -11,68 +14,77 @@ class OrdersPage extends StatelessWidget {
         leading: nil,
         title: const Text('Orders'),
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            columns: const [
-              DataColumn(label: Text('Driver & Phone')),
-              DataColumn(label: Text('Address')),
-              DataColumn(label: Text('Cost')),
-            ],
-            columnSpacing: 0,
-            dataRowMinHeight: 10,
-            dataRowMaxHeight: 100,
-            rows: [
-              DataRow(
-                cells: [
-                  customDataCell(
-                    context,
-                    title: 'Jabborov Jasur',
-                    subtitle: '99 999 99 99',
+      body: BlocListener<OrdersBloc, OrdersState>(
+        listenWhen: (previous, current) => previous.status != current.status,
+        listener: (context, state) {
+          if (state.status == OrdersStatus.error) {
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                const SnackBar(
+                  content: Text('Failed to fetch orders'),
+                ),
+              );
+          }
+        },
+        child: BlocBuilder<OrdersBloc, OrdersState>(
+          builder: (context, state) {
+            if (state.orders.isEmpty) {
+              if (state.status == OrdersStatus.loading) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (state.status == OrdersStatus.loaded) {
+                return nil;
+              } else {
+                return const Center(
+                  child: Text('Failed to fetch orders'),
+                );
+              }
+            }
+            return SafeArea(
+              child: SingleChildScrollView(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    columns: const [
+                      DataColumn(label: Text('Driver')),
+                      DataColumn(label: Text('Address')),
+                      DataColumn(label: Text('Cost')),
+                    ],
+                    columnSpacing: 5,
+                    dataRowMinHeight: 10,
+                    dataRowMaxHeight: 100,
+                    rows: state.orders
+                        .map(
+                          (order) => orderRow(context, order),
+                        )
+                        .toList(),
                   ),
-                  addressDataCell(
-                    context,
-                    title: '30ПедКолледж /Булунгур/',
-                    subtitle: '30-8Богча /Булунгур/ * (определен автоматически)',
-                  ),
-                  const DataCell(Text('RUB 50 000')),
-                ],
+                ),
               ),
-              DataRow(
-                cells: [
-                  customDataCell(
-                    context,
-                    title: 'Jabborov Jasur',
-                    subtitle: '99 999 99 99',
-                  ),
-                  addressDataCell(
-                    context,
-                    title: '30ПедКолледж /Булунгур/',
-                    subtitle: '30-8Богча /Булунгур/ * (определен автоматически)',
-                  ),
-                  const DataCell(Text('RUB 5 000')),
-                ],
-              ),
-              DataRow(
-                cells: [
-                  customDataCell(
-                    context,
-                    title: 'Jabborov Jasur',
-                    subtitle: '99 999 99 99',
-                  ),
-                  addressDataCell(
-                    context,
-                    title: '30ПедКолледж /Булунгур/',
-                    subtitle: '30-8Богча /Булунгур/ * (определен автоматически)',
-                  ),
-                  const DataCell(Text('RUB 50 000')),
-                ],
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
+    );
+  }
+
+  DataRow orderRow(BuildContext context, OrderModel order) {
+    return DataRow(
+      cells: [
+        customDataCell(
+          context,
+          title: order.driverId.name,
+          subtitle: order.status,
+        ),
+        addressDataCell(
+          context,
+          title: order.addresses.first,
+          subtitle: order.addresses.last,
+        ),
+        DataCell(Text('RUB ${order.cash}')),
+      ],
     );
   }
 
@@ -116,6 +128,7 @@ class OrdersPage extends StatelessWidget {
             width: context.width * 0.26,
             child: Text(
               title ?? '',
+              maxLines: 2,
               style: context.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
@@ -124,7 +137,9 @@ class OrdersPage extends StatelessWidget {
             width: context.width * 0.26,
             child: Text(
               subtitle ?? '',
-              style: context.textTheme.bodySmall,
+              style: context.textTheme.bodySmall?.copyWith(
+                color: subtitle == 'finished' ? Colors.green : Colors.red,
+              ),
             ),
           ),
         ],

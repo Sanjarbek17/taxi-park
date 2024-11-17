@@ -7,6 +7,10 @@ class DataRepo {
 
   DataRepo({required RemoteService remoteService}) : _remoteService = remoteService;
 
+  bool get isLoggedIn {
+    return _remoteService.isLoggedIn;
+  }
+
   Future<void> login(String username, String password) async {
     await _remoteService.login(username, password);
   }

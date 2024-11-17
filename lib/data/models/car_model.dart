@@ -3,7 +3,7 @@ class CarModel {
   final String brand;
   final String color;
   final String plate;
-  final bool isWorking;
+  final bool? isWorking;
   final int year;
 
   CarModel({

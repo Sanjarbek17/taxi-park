@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:taxi_park/data/repository/data_repo.dart';
+import 'package:taxi_park/depency_injection.dart';
 import 'package:taxi_park/presentation/pages/drivers_page.dart';
 import 'package:taxi_park/presentation/pages/map_page.dart';
 import 'package:taxi_park/presentation/pages/orders_page.dart';
@@ -30,7 +32,9 @@ class _AppViewState extends State<AppView> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          locator<DataRepo>().getOrders();
+        },
         child: const Icon(Icons.refresh),
       ),
       bottomNavigationBar: BottomNavigationBar(

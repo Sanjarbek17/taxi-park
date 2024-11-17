@@ -9,7 +9,11 @@ final GetIt locator = GetIt.instance;
 
 Future<void> setupLocator() async {
   final pref = await SharedPreferences.getInstance();
-  final dio = Dio();
+  final dio = Dio(
+    BaseOptions(
+      baseUrl: 'https://brigadier-api.platform.taximaster.ru/api/v1/',
+    ),
+  );
 
   // Registering the Instances
   locator.registerLazySingleton(() => pref);

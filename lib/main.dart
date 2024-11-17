@@ -19,7 +19,10 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => locator<OrdersBloc>(),
+      create: (context) => locator<OrdersBloc>()
+        ..add(
+          const OrdersSubscriptionRequested(),
+        ),
       child: const MyApp(),
     );
   }
@@ -38,7 +41,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Taxi Park',
       theme: customTheme,
-      initialRoute: '/home',
+      initialRoute: '/',
       routes: {
         '/': (context) => const LoginPage(),
         '/home': (context) => const AppView(),
