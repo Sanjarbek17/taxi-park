@@ -93,7 +93,34 @@ class OrdersPage extends StatelessWidget {
           title: order.addresses.first,
           subtitle: order.addresses.last,
         ),
-        DataCell(Text('RUB ${order.cash}')),
+        DataCell(
+          Text('RUB ${order.cash}'),
+          onTap: () {
+            showBottomSheet(
+              context: context,
+              builder: (context) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Order ID: ${order.id}'),
+                    Text('Driver: ${order.driverId.name}'),
+                    Text('Driver Phone: ${order.driverId.phoneNumber}'),
+                    Text('Address: ${order.addresses.first}'),
+                    Text('Address: ${order.addresses.last}'),
+                    Text('Cost: RUB ${order.cash}'),
+                    Text('Status: ${order.status}'),
+                    Text('Created: ${order.created}'),
+                    Text('Finished: ${order.finished}'),
+                  ]
+                      .map(
+                        (e) => ListTile(title: e),
+                      )
+                      .toList(),
+                );
+              },
+            );
+          },
+        ),
       ],
     );
   }

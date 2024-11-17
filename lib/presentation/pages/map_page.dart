@@ -16,6 +16,7 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
+  final PopupController _pageController = PopupController();
   @override
   Widget build(BuildContext context) {
     return FlutterMap(
@@ -61,10 +62,14 @@ class _MapPageState extends State<MapPage> {
                     );
                   },
                 ).toList(),
-                // popupController: PopupController(),
+                popupController: _pageController,
                 popupDisplayOptions: PopupDisplayOptions(
                   builder: (context, marker) {
-                    return CustomPopUp(marker: marker);
+                    return TapRegion(
+                        onTapOutside: (event) {
+                          _pageController.hideAllPopups();
+                        },
+                        child: CustomPopUp(marker: marker));
                   },
                 ),
                 // selectedMarkerBuilder: (context, marker) {

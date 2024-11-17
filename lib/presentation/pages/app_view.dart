@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:liquid_progress_indicator_v2/liquid_progress_indicator.dart';
 import 'package:taxi_park/data/repository/data_repo.dart';
 import 'package:taxi_park/depency_injection.dart';
+import 'package:taxi_park/presentation/blocs/data_bloc/data_bloc.dart';
 import 'package:taxi_park/presentation/pages/drivers_page.dart';
 import 'package:taxi_park/presentation/pages/map_page.dart';
 import 'package:taxi_park/presentation/pages/orders_page.dart';
@@ -15,6 +19,30 @@ class AppView extends StatefulWidget {
 class _AppViewState extends State<AppView> {
   int _currentIndex = 0;
   final PageController _pageController = PageController();
+
+  late Timer timer;
+
+  @override
+  void initState() {
+    super.initState();
+    timer = Timer.periodic(
+      const Duration(seconds: 20),
+      (timer) {
+        setState(() {});
+        locator<DataBloc>()
+          ..add(const OrdersSubscriptionRequested())
+          ..add(const DriversSubscriptionRequested())
+          ..add(const AddressesSubscriptionRequested());
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    timer.cancel();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,16 +64,35 @@ class _AppViewState extends State<AppView> {
           switch (_currentIndex) {
             case 0:
               locator<DataRepo>().getOrders();
+              setState(() {});
               break;
             case 1:
               locator<DataRepo>().getDrivers();
+              setState(() {});
               break;
             case 2:
               locator<DataRepo>().getAddreses();
+              setState(() {});
               break;
           }
         },
-        child: const Icon(Icons.refresh),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50),
+        ),
+        child: TweenAnimationBuilder(
+          key: UniqueKey(),
+          duration: const Duration(seconds: 20),
+          tween: Tween<double>(begin: 1, end: 0),
+          builder: (context, value, _) {
+            return LiquidCircularProgressIndicator(
+              value: value,
+              valueColor: const AlwaysStoppedAnimation(Colors.yellow),
+              backgroundColor: Colors.white,
+              direction: Axis.vertical,
+              center: const Icon(Icons.refresh),
+            );
+          },
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,

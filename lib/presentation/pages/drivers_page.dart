@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:taxi_park/core/cars_brand.dart';
 import 'package:taxi_park/data/models/driver_model.dart';
+import 'package:taxi_park/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:taxi_park/presentation/blocs/data_bloc/data_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -25,6 +26,14 @@ class _DriversPageState extends State<DriversPage> {
       appBar: AppBar(
         leading: nil,
         title: const Text('Drivers'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              context.read<AuthenticationBloc>().add(AuthenticationLogoutPressed());
+            },
+            icon: const Icon(Icons.logout),
+          ),
+        ],
       ),
       body: BlocListener<DataBloc, DataBlocState>(
         listenWhen: (previous, current) => previous.status != current.status,
@@ -122,6 +131,7 @@ class _DriversPageState extends State<DriversPage> {
             showBottomSheet(
               context: context,
               builder: (context) => Column(
+                mainAxisSize: MainAxisSize.min,
                 children: <String>[
                   'name: ${driver.name}',
                   'phone Number: ${driver.phoneNumber}',
