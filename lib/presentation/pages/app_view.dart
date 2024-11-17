@@ -33,7 +33,17 @@ class _AppViewState extends State<AppView> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          locator<DataRepo>().getOrders();
+          switch (_currentIndex) {
+            case 0:
+              locator<DataRepo>().getOrders();
+              break;
+            case 1:
+              locator<DataRepo>().getDrivers();
+              break;
+            case 2:
+              locator<DataRepo>().getAddreses();
+              break;
+          }
         },
         child: const Icon(Icons.refresh),
       ),

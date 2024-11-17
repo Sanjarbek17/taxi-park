@@ -1,11 +1,23 @@
 import 'package:awesome_extensions/awesome_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:taxi_park/data/models/driver_model.dart';
 import 'package:taxi_park/gen/assets.gen.dart';
 import 'package:taxi_park/presentation/blocs/data_bloc/data_bloc.dart';
 
-class DriversPage extends StatelessWidget {
+class DriversPage extends StatefulWidget {
   const DriversPage({super.key});
+
+  @override
+  State<DriversPage> createState() => _DriversPageState();
+}
+
+class _DriversPageState extends State<DriversPage> {
+  @override
+  void initState() {
+    super.initState();
+    print('initState DriversPage');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +41,13 @@ class DriversPage extends StatelessWidget {
         },
         child: BlocBuilder<DataBloc, DataBlocState>(
           builder: (context, state) {
-            if (state.orders.isEmpty) {
-              if (state.status == DataStatus.loading) {
+            print('DriversPage: ${state.drivers.length}');
+            if (state.drivers.isEmpty) {
+              if (state.driverStatus == DataStatus.loading) {
                 return const Center(
                   child: CircularProgressIndicator(),
                 );
-              } else if (state.status == DataStatus.loaded) {
+              } else if (state.driverStatus == DataStatus.loaded) {
                 return nil;
               } else {
                 return const Center(
@@ -44,61 +57,46 @@ class DriversPage extends StatelessWidget {
             }
             return SafeArea(
               child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  columnSpacing: 10,
-                  columns: const [
-                    DataColumn(label: Text('Online')),
-                    DataColumn(label: Text('Driver Name')),
-                    DataColumn(label: Text('Car')),
-                    DataColumn(label: Text('Balance')),
-                  ],
-                  dataRowMaxHeight: 100,
-                  dataRowMinHeight: 50,
-                  rows: [
-                    DataRow(
-                      cells: [
-                        const DataCell(Icon(Icons.circle, color: Colors.red)),
-                        customDataCell(
-                          context,
-                          title: 'John Doe',
-                          subtitle: '123-456-7890',
-                        ),
-                        DataCell(Image.asset(Assets.images.cobalt.path, width: 100)),
-                        const DataCell(Text('\$10 000.00')),
-                      ],
-                    ),
-                    DataRow(
-                      cells: [
-                        const DataCell(Icon(Icons.circle, color: Colors.green)),
-                        customDataCell(
-                          context,
-                          title: 'John Doe',
-                          subtitle: '998 99 453 23 12',
-                        ),
-                        DataCell(Image.asset(Assets.images.nexia2.path, width: 100)),
-                        const DataCell(Text('\$200.00')),
-                      ],
-                    ),
-                    DataRow(
-                      cells: [
-                        const DataCell(Icon(Icons.circle, color: Colors.green)),
-                        customDataCell(
-                          context,
-                          title: 'John Doe',
-                          subtitle: '123-456-7890',
-                        ),
-                        DataCell(Image.asset(Assets.images.nexia3.path, width: 100)),
-                        const DataCell(Text('\$300.00')),
-                      ],
-                    ),
-                  ],
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    columnSpacing: 10,
+                    columns: const [
+                      DataColumn(label: Text('Online')),
+                      DataColumn(label: Text('Driver Name')),
+                      DataColumn(label: Text('Car')),
+                      DataColumn(label: Text('Balance')),
+                    ],
+                    dataRowMaxHeight: 100,
+                    dataRowMinHeight: 50,
+                    rows: state.drivers
+                        .map((driver) => driverRow(
+                              context,
+                              driver,
+                            ))
+                        .toList(),
+                  ),
                 ),
               ),
             );
           },
         ),
       ),
+    );
+  }
+
+  DataRow driverRow(BuildContext context, DriverModel driver) {
+    return DataRow(
+      cells: [
+        DataCell(Icon(Icons.circle, color: driver.online ?? false ? Colors.green : Colors.red)),
+        customDataCell(
+          context,
+          title: driver.name,
+          subtitle: driver.phoneNumber,
+        ),
+        DataCell(Image.asset(Assets.images.cobalt.path, width: 100)),
+        DataCell(Text('₽${driver.balance}')),
+      ],
     );
   }
 
@@ -112,6 +110,7 @@ class DriversPage extends StatelessWidget {
             width: context.width * 0.26,
             child: Text(
               title ?? '',
+              maxLines: 2,
               style: context.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
@@ -120,6 +119,7 @@ class DriversPage extends StatelessWidget {
             width: context.width * 0.26,
             child: Text(
               subtitle ?? '',
+              maxLines: 2,
               style: context.textTheme.bodySmall,
             ),
           ),

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:taxi_park/core/custom_marker.dart';
+import 'package:taxi_park/presentation/blocs/data_bloc/data_bloc.dart';
+import 'package:taxi_park/presentation/widgets/marker_card.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MapPage extends StatefulWidget {
@@ -42,23 +46,35 @@ class _MapPageState extends State<MapPage> {
         //     ),
         //   ],
         // ),
-        PopupMarkerLayer(
-          options: PopupMarkerLayerOptions(
-            markers: [
-              const Marker(
-                point: LatLng(39.763594, 67.272534),
-                width: 80,
-                height: 80,
-                child: Icon(Icons.location_on, size: 40, color: Colors.red),
+        BlocBuilder<DataBloc, DataBlocState>(
+          builder: (context, state) {
+            print('state.addresses: ${state.addresses}');
+            return PopupMarkerLayer(
+              options: PopupMarkerLayerOptions(
+                markers: state.addresses.map(
+                  (driver) {
+                    return CustomMarker(
+                      driver: driver,
+                      point: driver.address ?? const LatLng(0, 0),
+                      width: 80,
+                      height: 80,
+                      child: const Icon(Icons.location_on, size: 40, color: Colors.red),
+                    );
+                  },
+                ).toList(),
+                // popupController: PopupController(),
+                popupDisplayOptions: PopupDisplayOptions(
+                  builder: (context, marker) {
+                    print('marker: ${marker.key},');
+                    return CustomPopUp(marker: marker);
+                  },
+                ),
+                // selectedMarkerBuilder: (context, marker) {
+                //   return CustomPopUp(marker: marker);
+                // },
               ),
-            ],
-            // popupController: PopupController(),
-            popupDisplayOptions: PopupDisplayOptions(
-              builder: (context, marker) {
-                return CustomPopUp(marker: marker);
-              },
-            ),
-          ),
+            );
+          },
         ),
         RichAttributionWidget(
           // Include a stylish prebuilt attribution widget that meets all requirments
@@ -71,46 +87,6 @@ class _MapPageState extends State<MapPage> {
           ],
         ),
       ],
-    );
-  }
-}
-
-class CustomPopUp extends StatelessWidget {
-  final Marker marker;
-  const CustomPopUp({
-    super.key,
-    required this.marker,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Container(
-          constraints: const BoxConstraints(minWidth: 100, maxWidth: 300),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              "full name: Po'latov Akmal O'talboy o'g'li",
-              "alias: 18463",
-              "cab group: Булунгур",
-              "balance on account: RUB 11,490",
-            ]
-                .map(
-                  (e) => Text(
-                    e,
-                    overflow: TextOverflow.fade,
-                    softWrap: false,
-                    style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0),
-                  ),
-                )
-                .toList(),
-          ),
-        ),
-      ),
     );
   }
 }

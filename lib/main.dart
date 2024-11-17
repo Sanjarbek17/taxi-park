@@ -59,11 +59,14 @@ class _MyAppState extends State<MyApp> {
       title: 'Taxi Park',
       theme: customTheme,
       builder: (context, child) {
+        print(child.runtimeType);
+        // delay for splash screen
         return BlocListener<AuthenticationBloc, AuthenticationState>(
-          listener: (context, state) {
+          listener: (context, state) async {
             switch (state.status) {
               case AuthStatus.unauthenticated:
-                _navigator.pushNamedAndRemoveUntil('/', (route) => false);
+                await Future.delayed(const Duration(seconds: 1));
+                _navigator.pushNamedAndRemoveUntil('/login', (route) => false);
                 break;
               case AuthStatus.authenticated:
                 _navigator.pushNamedAndRemoveUntil('/home', (route) => false);
@@ -75,11 +78,10 @@ class _MyAppState extends State<MyApp> {
           child: child,
         );
       },
-      onGenerateRoute: (settings) => MaterialPageRoute(
-        builder: (context) => const SplashScreen(),
-      ),
+      initialRoute: '/',
       routes: {
-        '/': (context) => const LoginPage(),
+        '/': (context) => const SplashScreen(),
+        '/login': (context) => const LoginPage(),
         '/home': (context) => const AppView(),
       },
     );

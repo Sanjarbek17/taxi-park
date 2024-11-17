@@ -64,14 +64,91 @@ class RemoteService {
   }
 
   Future<void> logout() async {
-    await _dio.post('/logout');
+    await _dio.post(
+      '/logout',
+      options: Options(
+        headers: {
+          'X-Auth': _sharedPreferences.getString(token),
+          'x-brigadier-site': 'taxi-kp.tm.taxi',
+        },
+      ),
+    );
     await _sharedPreferences.remove(token);
     _authStreamController.add(AuthStatus.unauthenticated);
   }
 
-  Future<void> getOrders({int pageLimit = 10}) async {
+  Future<void> getOrders({int pageLimit = 24}) async {
+    print(_sharedPreferences.getString(token));
     final now = DateTime.now();
-    final response = await _dio.get('/orders',
+    try {
+      final response = await _dio.get(
+        '/orders',
+        options: Options(
+          headers: {
+            'X-Auth': _sharedPreferences.getString(token),
+            'x-brigadier-site': 'taxi-kp.tm.taxi',
+          },
+        ),
+        queryParameters: {
+          'page[limit]': pageLimit,
+          'filter[finished][gte]': DateTime(now.year, now.month, now.day).toIso8601String(),
+          'filter[finished][lte]': DateTime.now().add(const Duration(days: 1)).toIso8601String(),
+          'fields[orders]': 'id,addresses,created,finished,state,car,driver,cost',
+          'fields[drivers]': 'state,name,car,crew_group,balance,phones,online,call,comment,blocked,block_reason,available_cars',
+        },
+      );
+
+      final orders = response.data['data'] as List;
+      final included = response.data['included'] as List;
+      final ordersModel = orders
+          .map(
+            (order) => OrderModel.fromJson(
+              order,
+              included,
+            ),
+          )
+          .toList();
+      _orderStreamController.add(ordersModel);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        await _sharedPreferences.remove(token);
+        _authStreamController.add(AuthStatus.unauthenticated);
+      }
+    }
+  }
+
+  Future<void> getDrivers() async {
+    try {
+      final response = await _dio.get(
+        '/drivers',
+        options: Options(headers: {
+          'X-Auth': _sharedPreferences.getString(token),
+          'x-brigadier-site': 'taxi-kp.tm.taxi',
+        }),
+        queryParameters: {
+          'fields[drivers]': 'state,name,car,crew_group,balance,phones,online,call,comment,blocked,block_reason,available_cars',
+          'include': 'car,car.attributes,available_cars,crew_group,undefined',
+          'page[limit]': 25,
+        },
+      );
+      final drivers = response.data['data'] as List;
+      final included = response.data['included'] as List;
+      final driversModel = drivers.map((driver) => DriverModel.fromJson(driver, included)).toList();
+      _driverStreamController.add(driversModel);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        await _sharedPreferences.remove(token);
+        _authStreamController.add(AuthStatus.unauthenticated);
+      }
+    }
+  }
+
+  Future<void> getAddresses({int pageLimit = 24}) async {
+    print('getAddresses');
+    final now = DateTime.now();
+    try {
+      final response = await _dio.get(
+        '/orders',
         options: Options(headers: {
           'X-Auth': _sharedPreferences.getString(token),
           'x-brigadier-site': 'taxi-kp.tm.taxi',
@@ -81,46 +158,21 @@ class RemoteService {
           'filter[finished][gte]': DateTime(now.year, now.month, now.day).toIso8601String(),
           'filter[finished][lte]': DateTime.now().add(const Duration(days: 1)).toIso8601String(),
           'fields[orders]': 'id,addresses,created,finished,state,car,driver,cost',
-        });
-    // print(response.data);
-    final orders = response.data['data'] as List;
-    final included = response.data['included'] as List;
-    final ordersModel = orders.map((order) => OrderModel.fromJson(order, included)).toList();
-    _orderStreamController.add(ordersModel);
-  }
-
-  Future<void> getDrivers() async {
-    final response = await _dio.get('/drivers',
-        options: Options(headers: {
-          'X-Auth': _sharedPreferences.getString(token),
-          'x-brigadier-site': 'taxi-kp.tm.taxi',
-        }),
-        queryParameters: {
-          'fields[drivers]': 'state,name,car,crew_group,balance,phones,online,call,comment,blocked,block_reason,available_cars',
-          'include': 'car,car.attributes,available_cars,crew_group,undefined',
-          'filter[state_type]': 'on_order',
-          'page[limit]': 5,
-        });
-    final drivers = response.data['data'] as List;
-    final included = response.data['included'] as List;
-    final driversModel = drivers.map((driver) => DriverModel.fromJson(driver, included)).toList();
-    _driverStreamController.add(driversModel);
-  }
-
-  Future<void> getAddresses() async {
-    final response = await _dio.get('/orders',
-        options: Options(headers: {
-          'X-Auth': _sharedPreferences.getString(token),
-          'x-brigadier-site': 'taxi-kp.tm.taxi',
-        }),
-        queryParameters: {
-          'fields[drivers]': 'state,name,car,crew_group,balance,phones,online,call,comment,blocked,block_reason,available_cars',
-          'include': 'car,car.attributes,available_cars,crew_group,undefined',
-          'filter[state_type]': 'on_order',
-          'page[limit]': 5,
-        });
-    final included = response.data['included'] as List;
-    final addresses = included.map((driver) => DriverModel.fromJson(driver)).toList();
-    _addressStreamController.add(addresses);
+          'fields[drivers]': 'state,name,car,crew_group,balance,phones,online,call,comment,blocked,block_reason,available_cars,coordinates',
+        },
+      );
+      // print(response.data);
+      final included = response.data['included'] as List;
+      final drivers = included.where((element) => element['type'] == 'drivers').toList();
+      final addresses = drivers.map((driver) => DriverModel.fromJson(driver)).toList();
+      _addressStreamController.add(addresses);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        await _sharedPreferences.remove(token);
+        _authStreamController.add(AuthStatus.unauthenticated);
+      } else {
+        print(e.response?.data['errors']);
+      }
+    }
   }
 }

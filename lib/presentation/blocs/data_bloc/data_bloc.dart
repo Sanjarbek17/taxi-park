@@ -18,14 +18,12 @@ class DataBloc extends Bloc<DataBlocEvent, DataBlocState> {
 
   final DataRepo _ordersRepository;
 
-
-
   void _onOrdersSubscriptionRequested(
     OrdersSubscriptionRequested event,
     Emitter<DataBlocState> emit,
   ) async {
     emit(state.copyWith(status: DataStatus.loading));
-    
+    await _ordersRepository.getOrders();
     await emit.forEach(
       _ordersRepository.orderStream,
       onData: (orders) => state.copyWith(status: DataStatus.loaded, orders: orders),
@@ -37,12 +35,12 @@ class DataBloc extends Bloc<DataBlocEvent, DataBlocState> {
     DriversSubscriptionRequested event,
     Emitter<DataBlocState> emit,
   ) async {
-    emit(state.copyWith(status: DataStatus.loading));
-    
+    emit(state.copyWith(driverStatus: DataStatus.loading));
+    _ordersRepository.getDrivers();
     await emit.forEach(
       _ordersRepository.driverStream,
-      onData: (drivers) => state.copyWith(status: DataStatus.loaded, drivers: drivers),
-      onError: (_, __) => state.copyWith(status: DataStatus.error),
+      onData: (drivers) => state.copyWith(driverStatus: DataStatus.loaded, drivers: drivers),
+      onError: (_, __) => state.copyWith(driverStatus: DataStatus.error),
     );
   }
 
@@ -50,13 +48,12 @@ class DataBloc extends Bloc<DataBlocEvent, DataBlocState> {
     AddressesSubscriptionRequested event,
     Emitter<DataBlocState> emit,
   ) async {
-    emit(state.copyWith(status: DataStatus.loading));
-    
+    emit(state.copyWith(addressStatus: DataStatus.loading));
+    _ordersRepository.getAddreses();
     await emit.forEach(
       _ordersRepository.addressStream,
-      onData: (addresses) => state.copyWith(status: DataStatus.loaded, addresses: addresses),
-      onError: (_, __) => state.copyWith(status: DataStatus.error),
+      onData: (addresses) => state.copyWith(addressStatus: DataStatus.loaded, addresses: addresses),
+      onError: (_, __) => state.copyWith(addressStatus: DataStatus.error),
     );
   }
-  
 }

@@ -2,6 +2,7 @@ import 'package:awesome_extensions/awesome_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:taxi_park/data/models/order_model.dart';
+import 'package:taxi_park/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:taxi_park/presentation/blocs/data_bloc/data_bloc.dart';
 
 class OrdersPage extends StatelessWidget {
@@ -13,6 +14,14 @@ class OrdersPage extends StatelessWidget {
       appBar: AppBar(
         leading: nil,
         title: const Text('Orders'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              context.read<AuthenticationBloc>().add(AuthenticationLogoutPressed());
+            },
+            icon: const Icon(Icons.logout),
+          ),
+        ],
       ),
       body: BlocListener<DataBloc, DataBlocState>(
         listenWhen: (previous, current) => previous.status != current.status,
@@ -78,7 +87,8 @@ class OrdersPage extends StatelessWidget {
         customDataCell(
           context,
           title: order.driverId.name,
-          subtitle: order.status,
+          subtitle: order.driverId.phoneNumber,
+          state: order.status,
         ),
         addressDataCell(
           context,
@@ -120,7 +130,7 @@ class OrdersPage extends StatelessWidget {
     );
   }
 
-  DataCell customDataCell(BuildContext context, {String? title, String? subtitle}) {
+  DataCell customDataCell(BuildContext context, {String? title, String? subtitle, String? state}) {
     return DataCell(
       Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -140,7 +150,7 @@ class OrdersPage extends StatelessWidget {
             child: Text(
               subtitle ?? '',
               style: context.textTheme.bodySmall?.copyWith(
-                color: subtitle == 'finished' ? Colors.green : Colors.red,
+                color: (state ?? '') == 'finished' ? Colors.green : Colors.red,
               ),
             ),
           ),
