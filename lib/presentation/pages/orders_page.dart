@@ -38,8 +38,6 @@ class OrdersPage extends StatelessWidget {
         },
         child: BlocBuilder<DataBloc, DataBlocState>(
           builder: (context, state) {
-            print('OrdersPage: ${state.orders.length}');
-            print('Orders status: ${state.status}');
             if (state.orders.isEmpty) {
               if (state.status == DataStatus.loading) {
                 return const Center(

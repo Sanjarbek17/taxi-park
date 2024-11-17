@@ -23,7 +23,6 @@ class DriverModel {
   factory DriverModel.fromJson(Map<String, dynamic> data, [List? included]) {
     final json = data['attributes'];
     final carId = data['relationships']['car']['data']['id'];
-    print('coordinates: ${json['coordinates']}');
     return DriverModel(
       id: data['id'],
       name: json['name'],

@@ -78,7 +78,6 @@ class RemoteService {
   }
 
   Future<void> getOrders({int pageLimit = 24}) async {
-    print(_sharedPreferences.getString(token));
     final now = DateTime.now();
     try {
       final response = await _dio.get(
@@ -144,7 +143,6 @@ class RemoteService {
   }
 
   Future<void> getAddresses({int pageLimit = 24}) async {
-    print('getAddresses');
     final now = DateTime.now();
     try {
       final response = await _dio.get(
@@ -171,7 +169,6 @@ class RemoteService {
         await _sharedPreferences.remove(token);
         _authStreamController.add(AuthStatus.unauthenticated);
       } else {
-        print(e.response?.data['errors']);
       }
     }
   }

@@ -59,7 +59,6 @@ class _MyAppState extends State<MyApp> {
       title: 'Taxi Park',
       theme: customTheme,
       builder: (context, child) {
-        print(child.runtimeType);
         // delay for splash screen
         return BlocListener<AuthenticationBloc, AuthenticationState>(
           listener: (context, state) async {

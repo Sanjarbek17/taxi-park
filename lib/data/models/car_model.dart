@@ -19,7 +19,7 @@ class CarModel {
     final json = data['attributes'];
     return CarModel(
       id: data['id'],
-      brand: json['brand'],
+      brand: json['brand'].toString().isEmpty ? 'NOCAR' : json['brand'].toString().toUpperCase(),
       color: json['color'],
       plate: json['plate'],
       isWorking: json['isWorking'],

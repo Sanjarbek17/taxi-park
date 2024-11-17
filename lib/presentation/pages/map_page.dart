@@ -48,7 +48,6 @@ class _MapPageState extends State<MapPage> {
         // ),
         BlocBuilder<DataBloc, DataBlocState>(
           builder: (context, state) {
-            print('state.addresses: ${state.addresses}');
             return PopupMarkerLayer(
               options: PopupMarkerLayerOptions(
                 markers: state.addresses.map(
@@ -65,7 +64,6 @@ class _MapPageState extends State<MapPage> {
                 // popupController: PopupController(),
                 popupDisplayOptions: PopupDisplayOptions(
                   builder: (context, marker) {
-                    print('marker: ${marker.key},');
                     return CustomPopUp(marker: marker);
                   },
                 ),

@@ -1,9 +1,10 @@
 import 'package:awesome_extensions/awesome_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:taxi_park/core/cars_brand.dart';
 import 'package:taxi_park/data/models/driver_model.dart';
-import 'package:taxi_park/gen/assets.gen.dart';
 import 'package:taxi_park/presentation/blocs/data_bloc/data_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DriversPage extends StatefulWidget {
   const DriversPage({super.key});
@@ -16,7 +17,6 @@ class _DriversPageState extends State<DriversPage> {
   @override
   void initState() {
     super.initState();
-    print('initState DriversPage');
   }
 
   @override
@@ -41,7 +41,6 @@ class _DriversPageState extends State<DriversPage> {
         },
         child: BlocBuilder<DataBloc, DataBlocState>(
           builder: (context, state) {
-            print('DriversPage: ${state.drivers.length}');
             if (state.drivers.isEmpty) {
               if (state.driverStatus == DataStatus.loading) {
                 return const Center(
@@ -87,15 +86,58 @@ class _DriversPageState extends State<DriversPage> {
 
   DataRow driverRow(BuildContext context, DriverModel driver) {
     return DataRow(
+      onLongPress: () async {
+        await launchUrl(Uri.parse('sms:${driver.phoneNumber}'));
+      },
       cells: [
-        DataCell(Icon(Icons.circle, color: driver.online ?? false ? Colors.green : Colors.red)),
+        DataCell(
+          Icon(
+            Icons.circle,
+            color: driver.online ?? false ? Colors.green : Colors.red,
+          ),
+        ),
         customDataCell(
           context,
           title: driver.name,
           subtitle: driver.phoneNumber,
         ),
-        DataCell(Image.asset(Assets.images.cobalt.path, width: 100)),
-        DataCell(Text('₽${driver.balance}')),
+        DataCell(Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image.asset(
+              carsBrand.keys.contains(
+                driver.carId?.brand,
+              )
+                  ? carsBrand[driver.carId?.brand ?? 'NOCAR']!['path']
+                  : carsBrand['NOCAR']!['path'],
+              width: 100,
+            ),
+            Text('${driver.carId?.color}'),
+          ],
+        )),
+        DataCell(
+          Text('₽${driver.balance}'),
+          onTap: () {
+            showBottomSheet(
+              context: context,
+              builder: (context) => Column(
+                children: <String>[
+                  'name: ${driver.name}',
+                  'phone Number: ${driver.phoneNumber}',
+                  'plate: ${driver.carId?.plate}',
+                  'brand: ${driver.carId?.brand}',
+                  'color: ${driver.carId?.color}',
+                  'year: ${driver.carId?.year}',
+                  'isWorking: ${driver.carId?.isWorking}',
+                  'balance: RUB ${driver.balance}',
+                  'online: ${driver.online}',
+                  'id: ${driver.id}',
+                ].map((e) => ListTile(title: Text(e))).toList(),
+              ),
+            );
+          },
+        ),
       ],
     );
   }
