@@ -96,7 +96,7 @@ class _DriversPageState extends State<DriversPage> {
   DataRow driverRow(BuildContext context, DriverModel driver) {
     return DataRow(
       onLongPress: () async {
-        await launchUrl(Uri.parse('sms:${driver.phoneNumber}'));
+        await launchUrl(Uri.parse('tel:${driver.phoneNumber}'));
       },
       cells: [
         DataCell(

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:taxi_park/data/models/order_model.dart';
 import 'package:taxi_park/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:taxi_park/presentation/blocs/data_bloc/data_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class OrdersPage extends StatelessWidget {
   const OrdersPage({super.key});
@@ -81,6 +82,9 @@ class OrdersPage extends StatelessWidget {
 
   DataRow orderRow(BuildContext context, OrderModel order) {
     return DataRow(
+      onLongPress: () async {
+        await launchUrl(Uri.parse('tel:${order.driverId.phoneNumber}'));
+      },
       cells: [
         customDataCell(
           context,
