@@ -46,6 +46,7 @@ dependencies:
   flutter_bloc: ^8.1.6
   rxdart: ^0.28.0
   equatable: ^2.0.5
+  get_it: ^8.0.2
 
 dev_dependencies:
   flutter_test:
