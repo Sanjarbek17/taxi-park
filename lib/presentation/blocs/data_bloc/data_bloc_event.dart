@@ -18,3 +18,19 @@ final class DriversSubscriptionRequested extends DataBlocEvent {
 final class AddressesSubscriptionRequested extends DataBlocEvent {
   const AddressesSubscriptionRequested();
 }
+
+final class DriversSearchRequested extends DataBlocEvent {
+  final String query;
+
+  const DriversSearchRequested(this.query);
+
+  @override
+  List<Object> get props => [query];
+}
+
+final class PickedDateOrdersRange extends DataBlocEvent {
+  final DateTime startDate;
+  final DateTime endDate;
+
+  const PickedDateOrdersRange(this.startDate, this.endDate);
+}

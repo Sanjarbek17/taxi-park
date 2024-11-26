@@ -17,14 +17,13 @@ class AppView extends StatefulWidget {
 }
 
 class _AppViewState extends State<AppView> {
-  int _currentIndex = 0;
+  final int _currentIndex = 0;
   final PageController _pageController = PageController();
 
   late Timer timer;
 
   @override
   void initState() {
-    super.initState();
     timer = Timer.periodic(
       const Duration(seconds: 20),
       (timer) {
@@ -35,12 +34,14 @@ class _AppViewState extends State<AppView> {
           ..add(const AddressesSubscriptionRequested());
       },
     );
+    super.initState();
   }
 
   @override
   void dispose() {
-    super.dispose();
     timer.cancel();
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -48,11 +49,6 @@ class _AppViewState extends State<AppView> {
     return Scaffold(
       body: PageView(
         controller: _pageController,
-        onPageChanged: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
         children: const [
           OrdersPage(),
           DriversPage(),
@@ -94,33 +90,53 @@ class _AppViewState extends State<AppView> {
           },
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          _pageController.animateToPage(
-            index,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-          );
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'Orders',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Drivers',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.map),
-            label: 'Map',
-          ),
-        ],
-      ),
+      bottomNavigationBar: CustomBottomNavigationBar(pageController: _pageController),
+    );
+  }
+}
+
+class CustomBottomNavigationBar extends StatefulWidget {
+  const CustomBottomNavigationBar({
+    super.key,
+    required PageController pageController,
+  }) : _pageController = pageController;
+
+  final PageController _pageController;
+
+  @override
+  State<CustomBottomNavigationBar> createState() => _CustomBottomNavigationBarState();
+}
+
+class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
+  int _currentIndex = 0;
+  @override
+  Widget build(BuildContext context) {
+    return BottomNavigationBar(
+      currentIndex: _currentIndex,
+      onTap: (index) {
+        setState(() {
+          _currentIndex = index;
+        });
+        widget._pageController.animateToPage(
+          index,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      },
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.list),
+          label: 'Orders',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.people),
+          label: 'Drivers',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.map),
+          label: 'Map',
+        ),
+      ],
     );
   }
 }

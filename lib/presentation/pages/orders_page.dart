@@ -2,7 +2,6 @@ import 'package:awesome_extensions/awesome_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:taxi_park/data/models/order_model.dart';
-import 'package:taxi_park/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:taxi_park/presentation/blocs/data_bloc/data_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -18,9 +17,23 @@ class OrdersPage extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              context.read<AuthenticationBloc>().add(AuthenticationLogoutPressed());
+              showDateRangePicker(
+                context: context,
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2100),
+              ).then((pickedDateRange) {
+                if (pickedDateRange != null) {
+                  // Handle the selected date range
+                  if (context.mounted) {
+                    context.read<DataBloc>().add(PickedDateOrdersRange(
+                          pickedDateRange.start,
+                          pickedDateRange.end,
+                        ));
+                  }
+                }
+              });
             },
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.date_range),
           ),
         ],
       ),
@@ -52,8 +65,8 @@ class OrdersPage extends StatelessWidget {
                 );
               }
             }
-            return SafeArea(
-              child: SingleChildScrollView(
+            if (state.status == DataStatus.searching) {
+              return SingleChildScrollView(
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: DataTable(
@@ -65,12 +78,32 @@ class OrdersPage extends StatelessWidget {
                     columnSpacing: 5,
                     dataRowMinHeight: 10,
                     dataRowMaxHeight: 100,
-                    rows: state.orders
+                    rows: state.searchOrders
                         .map(
                           (order) => orderRow(context, order),
                         )
                         .toList(),
                   ),
+                ),
+              );
+            }
+            return SingleChildScrollView(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  columns: const [
+                    DataColumn(label: Text('Driver')),
+                    DataColumn(label: Text('Address')),
+                    DataColumn(label: Text('Cost')),
+                  ],
+                  columnSpacing: 5,
+                  dataRowMinHeight: 10,
+                  dataRowMaxHeight: 100,
+                  rows: state.orders
+                      .map(
+                        (order) => orderRow(context, order),
+                      )
+                      .toList(),
                 ),
               ),
             );
@@ -103,23 +136,28 @@ class OrdersPage extends StatelessWidget {
             showBottomSheet(
               context: context,
               builder: (context) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('Order ID: ${order.id}'),
-                    Text('Driver: ${order.driverId.name}'),
-                    Text('Driver Phone: ${order.driverId.phoneNumber}'),
-                    Text('Address: ${order.addresses.first}'),
-                    Text('Address: ${order.addresses.last}'),
-                    Text('Cost: RUB ${order.cash}'),
-                    Text('Status: ${order.status}'),
-                    Text('Created: ${order.created}'),
-                    Text('Finished: ${order.finished}'),
-                  ]
-                      .map(
-                        (e) => ListTile(title: e),
-                      )
-                      .toList(),
+                return TapRegion(
+                  onTapOutside: (event) {
+                    context.pop();
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Order ID: ${order.id}'),
+                      Text('Driver: ${order.driverId.name}'),
+                      Text('Driver Phone: ${order.driverId.phoneNumber}'),
+                      Text('Address: ${order.addresses.first}'),
+                      Text('Address: ${order.addresses.last}'),
+                      Text('Cost: RUB ${order.cash}'),
+                      Text('Status: ${order.status}'),
+                      Text('Created: ${order.created}'),
+                      Text('Finished: ${order.finished}'),
+                    ]
+                        .map(
+                          (e) => ListTile(title: e),
+                        )
+                        .toList(),
+                  ),
                 );
               },
             );

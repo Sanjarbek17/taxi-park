@@ -14,6 +14,8 @@ class DataBloc extends Bloc<DataBlocEvent, DataBlocState> {
     on<OrdersSubscriptionRequested>(_onOrdersSubscriptionRequested);
     on<DriversSubscriptionRequested>(_onDriversSubscriptionRequested);
     on<AddressesSubscriptionRequested>(_onAddressesSubscriptionRequested);
+    on<DriversSearchRequested>(_onDriversSearchRequested);
+    on<PickedDateOrdersRange>(_onPickedDateOrdersRange);
   }
 
   final DataRepo _ordersRepository;
@@ -55,5 +57,27 @@ class DataBloc extends Bloc<DataBlocEvent, DataBlocState> {
       onData: (addresses) => state.copyWith(addressStatus: DataStatus.loaded, addresses: addresses),
       onError: (_, __) => state.copyWith(addressStatus: DataStatus.error),
     );
+  }
+
+  void _onDriversSearchRequested(
+    DriversSearchRequested event,
+    Emitter<DataBlocState> emit,
+  ) async {
+    if (event.query.isEmpty) {
+      emit(state.copyWith(driverStatus: DataStatus.loaded, searchDrivers: const <DriverModel>[]));
+      return;
+    }
+    final filteredDrivers = state.drivers.where((driver) {
+      return driver.name.toLowerCase().contains(event.query);
+    }).toList();
+    emit(state.copyWith(driverStatus: DataStatus.searching, searchDrivers: filteredDrivers));
+  }
+
+  void _onPickedDateOrdersRange(
+    PickedDateOrdersRange event,
+    Emitter<DataBlocState> emit,
+  ) async {
+    final orders = await _ordersRepository.getOrdersByDateRange(event.startDate, event.endDate);
+    emit(state.copyWith(status: DataStatus.searching, searchOrders: orders));
   }
 }

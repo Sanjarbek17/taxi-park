@@ -8,7 +8,6 @@ class DataRepo {
 
   DataRepo({required RemoteService remoteService}) : _remoteService = remoteService;
 
-
   Future<void> login(String username, String password) async {
     await _remoteService.login(username, password);
   }
@@ -26,6 +25,11 @@ class DataRepo {
 
   Future<void> getOrders() async {
     await _remoteService.getOrders();
+  }
+
+
+  Future<List<OrderModel>> getOrdersByDateRange(DateTime startDate, DateTime endDate) async {
+    return await _remoteService.getRange(startDate, endDate);
   }
 
   Future<void> getDrivers() async {

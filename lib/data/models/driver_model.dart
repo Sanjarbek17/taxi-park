@@ -6,6 +6,7 @@ class DriverModel {
   String name;
   num balance;
   bool? online;
+  String? status;
   String? phoneNumber;
   LatLng? address;
   CarModel? carId;
@@ -15,6 +16,7 @@ class DriverModel {
     required this.name,
     required this.balance,
     required this.online,
+    this.status,
     this.phoneNumber,
     this.address,
     this.carId,
@@ -28,6 +30,7 @@ class DriverModel {
       name: json['name'],
       balance: json['balance'],
       online: json['online'],
+      status: json['state']['type'],
       phoneNumber: json['phones'] == null ? null : json['phones'].first['number'],
       address: json['coordinates'] == null
           ? null

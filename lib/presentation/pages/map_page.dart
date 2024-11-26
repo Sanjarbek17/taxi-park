@@ -58,7 +58,15 @@ class _MapPageState extends State<MapPage> {
                       point: driver.address ?? const LatLng(0, 0),
                       width: 80,
                       height: 80,
-                      child: const Icon(Icons.location_on, size: 40, color: Colors.red),
+                      child: Icon(
+                        Icons.location_on,
+                        size: 40,
+                        color: driver.status == 'waiting'
+                            ? Colors.green
+                            : driver.status == 'not_available'
+                                ? Colors.black
+                                : Colors.red,
+                      ),
                     );
                   },
                 ).toList(),

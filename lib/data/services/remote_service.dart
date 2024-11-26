@@ -77,7 +77,43 @@ class RemoteService {
     _authStreamController.add(AuthStatus.unauthenticated);
   }
 
-  Future<void> getOrders({int pageLimit = 24}) async {
+  Future<List<OrderModel>> getRange(DateTime startDate, DateTime endDate) async {
+    try {
+      final response = await _dio.get(
+        '/orders',
+        options: Options(
+          headers: {
+            'X-Auth': _sharedPreferences.getString(token),
+            'x-brigadier-site': 'taxi-kp.tm.taxi',
+          },
+        ),
+        queryParameters: {
+          'filter[finished][gte]': startDate.toIso8601String(),
+          'filter[finished][lte]': endDate.toIso8601String(),
+          'fields[orders]': 'id,addresses,created,finished,state,car,driver,cost',
+          'fields[drivers]': 'state,name,car,crew_group,balance,phones,online,call,comment,blocked,block_reason,available_cars',
+        },
+      );
+      final orders = response.data['data'] as List;
+      final included = response.data['included'] as List;
+      final ordersModel = orders
+          .map(
+            (order) => OrderModel.fromJson(
+              order,
+              included,
+            ),
+          )
+          .toList();
+      return ordersModel;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        return [];
+      }
+    }
+    return [];
+  }
+
+  Future<void> getOrders() async {
     final now = DateTime.now();
     try {
       final response = await _dio.get(
@@ -89,7 +125,6 @@ class RemoteService {
           },
         ),
         queryParameters: {
-          'page[limit]': pageLimit,
           'filter[finished][gte]': DateTime(now.year, now.month, now.day).toIso8601String(),
           'filter[finished][lte]': DateTime.now().add(const Duration(days: 1)).toIso8601String(),
           'fields[orders]': 'id,addresses,created,finished,state,car,driver,cost',
@@ -127,7 +162,7 @@ class RemoteService {
         queryParameters: {
           'fields[drivers]': 'state,name,car,crew_group,balance,phones,online,call,comment,blocked,block_reason,available_cars',
           'include': 'car,car.attributes,available_cars,crew_group,undefined',
-          'page[limit]': 25,
+          'page[limit]': 50,
         },
       );
       final drivers = response.data['data'] as List;
@@ -168,8 +203,7 @@ class RemoteService {
       if (e.response?.statusCode == 401) {
         await _sharedPreferences.remove(token);
         _authStreamController.add(AuthStatus.unauthenticated);
-      } else {
-      }
+      } else {}
     }
   }
 }

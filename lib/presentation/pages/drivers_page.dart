@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:taxi_park/core/cars_brand.dart';
 import 'package:taxi_park/data/models/driver_model.dart';
-import 'package:taxi_park/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:taxi_park/presentation/blocs/data_bloc/data_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -15,6 +14,7 @@ class DriversPage extends StatefulWidget {
 }
 
 class _DriversPageState extends State<DriversPage> {
+  bool isSearching = false;
   @override
   void initState() {
     super.initState();
@@ -29,9 +29,11 @@ class _DriversPageState extends State<DriversPage> {
         actions: [
           IconButton(
             onPressed: () {
-              context.read<AuthenticationBloc>().add(AuthenticationLogoutPressed());
+              setState(() {
+                isSearching = !isSearching;
+              });
             },
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.search, size: 30),
           ),
         ],
       ),
@@ -48,46 +50,93 @@ class _DriversPageState extends State<DriversPage> {
               );
           }
         },
-        child: BlocBuilder<DataBloc, DataBlocState>(
-          builder: (context, state) {
-            if (state.drivers.isEmpty) {
-              if (state.driverStatus == DataStatus.loading) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else if (state.driverStatus == DataStatus.loaded) {
-                return nil;
-              } else {
-                return const Center(
-                  child: Text('Failed to fetch orders'),
-                );
-              }
-            }
-            return SafeArea(
-              child: SingleChildScrollView(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columnSpacing: 10,
-                    columns: const [
-                      DataColumn(label: Text('Online')),
-                      DataColumn(label: Text('Driver Name')),
-                      DataColumn(label: Text('Car')),
-                      DataColumn(label: Text('Balance')),
-                    ],
-                    dataRowMaxHeight: 100,
-                    dataRowMinHeight: 50,
-                    rows: state.drivers
-                        .map((driver) => driverRow(
-                              context,
-                              driver,
-                            ))
-                        .toList(),
-                  ),
+        child: Column(
+          children: [
+            if (isSearching)
+              TextField(
+                onChanged: (value) {
+                  if (value.isEmpty) {
+                    setState(() {
+                      isSearching = false;
+                    });
+                    context.read<DataBloc>().add(const DriversSearchRequested(''));
+                  } else {
+                    context.read<DataBloc>().add(DriversSearchRequested(value));
+                  }
+                },
+                decoration: const InputDecoration(
+                  hintText: 'Search',
+                  prefixIcon: Icon(Icons.search),
                 ),
               ),
-            );
-          },
+            BlocBuilder<DataBloc, DataBlocState>(
+              builder: (context, state) {
+                if (state.drivers.isEmpty) {
+                  if (state.driverStatus == DataStatus.loading) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (state.driverStatus == DataStatus.loaded) {
+                    return nil;
+                  } else {
+                    return const Center(
+                      child: Text('Failed to fetch orders'),
+                    );
+                  }
+                }
+                if (state.driverStatus == DataStatus.searching) {
+                  return Expanded(
+                    child: SingleChildScrollView(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                          columnSpacing: 10,
+                          columns: const [
+                            DataColumn(label: Text('Online')),
+                            DataColumn(label: Text('Driver Name')),
+                            DataColumn(label: Text('Car')),
+                            DataColumn(label: Text('Balance')),
+                          ],
+                          dataRowMaxHeight: 100,
+                          dataRowMinHeight: 50,
+                          rows: state.searchDrivers
+                              .map((driver) => driverRow(
+                                    context,
+                                    driver,
+                                  ))
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+                return Expanded(
+                  child: SingleChildScrollView(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columnSpacing: 10,
+                        columns: const [
+                          DataColumn(label: Text('Online')),
+                          DataColumn(label: Text('Driver Name')),
+                          DataColumn(label: Text('Car')),
+                          DataColumn(label: Text('Balance')),
+                        ],
+                        dataRowMaxHeight: 100,
+                        dataRowMinHeight: 50,
+                        rows: state.drivers
+                            .map((driver) => driverRow(
+                                  context,
+                                  driver,
+                                ))
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
@@ -96,6 +145,9 @@ class _DriversPageState extends State<DriversPage> {
   DataRow driverRow(BuildContext context, DriverModel driver) {
     return DataRow(
       onLongPress: () async {
+        setState(() {
+          isSearching = false;
+        });
         await launchUrl(Uri.parse('tel:${driver.phoneNumber}'));
       },
       cells: [
